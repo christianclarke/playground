@@ -1,3 +1,10 @@
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'app'
+require './app'
+require 'rack'
+require 'prometheus/middleware/collector'
+require 'prometheus/middleware/exporter'
+
+use Rack::Deflater
+use Prometheus::Middleware::Collector
+use Prometheus::Middleware::Exporter
+
 run App
