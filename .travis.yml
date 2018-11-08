@@ -2,5 +2,11 @@ language: ruby
 rvm:
 - 2.5.1
 bundler_args: --with=test
+services:
+  - docker
 script:
   - bundle exec rspec -f doc
+after_success:
+  - docker build -t christianclarke/playground:$TRAVIS_BUILD_NUMBER .
+  - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PWD
+  - docker push christianclarke/playground:$TRAVIS_BUILD_NUMBER
