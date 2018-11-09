@@ -7,6 +7,6 @@ services:
 script:
   - bundle exec rspec -f doc
 after_success:
-  - docker build -t christianclarke/playground:$TRAVIS_BUILD_NUMBER .
+  - docker build -t christianclarke/playground:$TRAVIS_BUILD_NUMBER -t christianclarke/playground:latest .
   - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PWD
   - docker push christianclarke/playground:$TRAVIS_BUILD_NUMBER
