@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/christianclarke/playground.svg?branch=master)](https://travis-ci.org/christianclarke/playground)
 
-  
-
 A simple Ruby Sinatra application, with the following endpoints
 
  - /
