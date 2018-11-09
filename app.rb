@@ -6,6 +6,7 @@ require 'prometheus/client'
 set :port, 8080
 set :bind, '0.0.0.0'
 
+# Sample Sinatra application
 class App < Sinatra::Base
   prometheus = Prometheus::Client.registry
   # create a new counter metric
