@@ -42,19 +42,14 @@ class App < Sinatra::Base
     sequence
   end
 
-  get '/version' do
-    status 200
-    '0.8.0'
-  end
-
   get '/healthz' do
     status 200
-    "Hello.  This is the healtcheck code.  Hello and goodbye from sinatra! The time is #{Time.now}."
+    "Hello.  This is the healtcheck.  Hello and goodbye from sinatra! The time is #{Time.now}."
   end
 
   get '/' do
     status 200
     http_requests.increment({fibonacci_sequence: 'hit_count'}, 1)
-    "Here are 10 fibonacci integers #{fibonacci_sequence.join(', ')}"
+    "Here are #{fibonacci_sequence.length} fibonacci integers #{fibonacci_sequence.join(', ')}"
   end
 end
