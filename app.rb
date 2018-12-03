@@ -54,8 +54,8 @@ class App < Sinatra::Base
     "Here are #{fibonacci_sequence.length} fibonacci integers #{fibonacci_sequence.join(', ')}"
   end
 
-  get '/hello' do
+  get '/goodbye' do
     status 200
-    "Hello!"
+    "goodbye"
   end
 end
