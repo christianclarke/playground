@@ -17,6 +17,6 @@ describe 'Sinatra App' do
 
   it 'the healthz endpoint returns a 400' do
     get '/healthz'
-    expect(last_response.status).to eql(200)
+    expect(last_response.status).to eql(400)
   end
 end

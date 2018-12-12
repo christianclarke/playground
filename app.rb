@@ -44,7 +44,7 @@ class App < Sinatra::Base
   end
 
   get '/healthz' do
-    status 200
+    status 400
     "Hello.  This is the healtcheck.  Hello and goodbye from sinatra! The time is #{Time.now}."
   end
 
