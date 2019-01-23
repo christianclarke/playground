@@ -53,9 +53,4 @@ class App < Sinatra::Base
     http_requests.increment({ fibonacci_sequence: 'hit_count', http_status: 200 }, 1)
     "Here are #{fibonacci_sequence.length} fibonacci integers #{fibonacci_sequence.join(', ')}"
   end
-
-  get '/goodbye' do
-    status 200
-    "goodbye"
-  end
 end
