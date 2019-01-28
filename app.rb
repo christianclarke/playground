@@ -8,14 +8,26 @@ set :bind, '0.0.0.0'
 
 # Sample Sinatra application
 class App < Sinatra::Base
-  prometheus = Prometheus::Client.registry
-  # create a new counter metric
-  http_requests = Prometheus::Client::Counter.new(:playground_request, 'A counter of HTTP requests made')
-  # register the metric
-  prometheus.register(http_requests)
+  attr_accessor :fibonnaci_hit_count, :prometheus, :healthz_ok_count, :healthz_not_ok_count
+
+  def initialize(app = nil)
+    @prometheus = Prometheus::Client.registry
+    @fibonnaci_hit_count = Prometheus::Client::Counter.new(:playground_request, 'A counter of HTTP requests made')
+    @healthz_ok_count = Prometheus::Client::Counter.new(:healthz_ok_count, 'A counter of good health checks')
+    @healthz_not_ok_count = Prometheus::Client::Counter.new(:healthz_not_ok_count, 'A counte rof bbad health checks')
+
+    @prometheus.register(@fibonnaci_hit_count)
+    @prometheus.register(@healthz_ok_count)
+    @prometheus.register(@healthz_not_ok_count)
+    super(app)
+  end
 
   def shut_down
     puts 'Shutting down application.'
+  end
+
+  def version
+    '0.11.0'
   end
 
   # Trap `Kill `
@@ -37,20 +49,31 @@ class App < Sinatra::Base
 
   def fibonacci_sequence
     sequence = []
-    20.times do |n|
+    ENV['FIBONACCI_COUNT'].to_i.times do |n|
       sequence << compute_fibonnaci_integer(n).to_s
     end
     sequence
   end
 
   get '/healthz' do
-    status 200
-    "Hello.  This is the healtcheck.  Hello and goodbye from sinatra! The time is #{Time.now}."
+    if ENV['FIBONACCI_COUNT'].nil?
+      status 500
+      @healthz_not_ok_count.increment
+      'Hello.  Playground cannot run.  Declare FIBONACCI_COUNT env var.'
+    else
+      status 200
+      @healthz_ok_count.increment
+      "Hello.  Playground #{version} is up and running."
+    end
   end
 
   get '/' do
-    status 200
-    http_requests.increment({ fibonacci_sequence: 'hit_count', http_status: 200 }, 1)
-    "Here are #{fibonacci_sequence.length} fibonacci integers #{fibonacci_sequence.join(', ')}"
+    if ENV['FIBONACCI_COUNT'].nil?
+      status 500
+    else
+      status 200
+      @fibonnaci_hit_count.increment
+      "Here are #{fibonacci_sequence.length} fibonacci integers #{fibonacci_sequence.join(', ')}"
+    end
   end
 end

@@ -7,6 +7,7 @@ gem 'sinatra'
 gem 'thin'
 
 group :test do
+  gem 'pry'
   gem 'rack-test'
   gem 'rspec'
 end
