@@ -12,10 +12,24 @@ describe 'Sinatra App' do
     double
   end
 
+  let(:gauge_dbl) do
+    double
+  end
+
+  let(:counter_dbl) do
+    double
+  end
+
   before(:each) do
     allow(ENV).to receive(:[]).with('FIBONACCI_COUNT').and_return('20')
     allow(Prometheus::Client).to receive(:registry).and_return(prometheus_dbl)
     allow(prometheus_dbl).to receive(:register).and_return(nil)
+    allow(gauge_dbl).to receive(:set).and_return(nil)
+    allow(counter_dbl).to receive(:set).and_return(nil)
+    allow_any_instance_of(Prometheus::Client::Gauge).to receive(:new).and_return(gauge_dbl)
+    allow_any_instance_of(Prometheus::Client::Counter).to receive(:new).and_return(counter_dbl)
+    allow(File).to receive(:read).and_return(":major: 1\n:minor: 0\n:patch: 0\n")
+    allow(File).to receive(:exist?).and_return(true)
   end
 
   it 'displays a sequence of fibonacci integers' do
@@ -25,18 +39,30 @@ describe 'Sinatra App' do
     expect(last_response.status).to eql(200)
   end
 
+  describe 'the version endpoint' do
+    it 'returns the app version' do
+      get '/version'
+      expect(last_response.status).to eql(200)
+      expect(last_response.body).to eql('1.0.0')
+    end
+  end
+
   describe 'the healthz endpoint' do
-    describe 'if the the FIBONACCI_COUNT env var' do
-      context 'is set' do
+    describe 'if the FIBONACCI_COUNT env var and the .semver file' do
+      context 'is set/found' do
         it 'returns a HTTP 200' do
           get '/healthz'
           expect(last_response.status).to eql(200)
         end
       end
 
-      context 'is not set' do
-        it 'returns a HTTP 500' do
+      context 'is not set/found' do
+        before(:each) do
           allow(ENV).to receive(:[]).with('FIBONACCI_COUNT').and_return(nil)
+          allow(File).to receive(:exist?).and_return(false)
+        end
+
+        it 'returns a HTTP 500' do
           get '/healthz'
           expect(last_response.status).to eql(500)
         end

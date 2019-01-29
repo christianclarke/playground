@@ -3,7 +3,7 @@ FROM alpine:latest
 ENV BUILD_PACKAGES curl-dev ruby-dev build-base
 ENV RUBY_PACKAGES ruby ruby-io-console ruby-bundler
 
-COPY app.rb config.ru Gemfile ./
+COPY app.rb config.ru Gemfile .semver ./
 
 RUN apk update && apk upgrade && \
     apk add bash ${BUILD_PACKAGES} && \
