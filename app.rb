@@ -8,15 +8,15 @@ set :bind, '0.0.0.0'
 
 # Sample Sinatra application
 class App < Sinatra::Base
-  attr_accessor :fibonnaci_hit_count, :prometheus, :healthz_ok_count, :version
+  attr_accessor :fibonnaci_hit_count, :prometheus, :healthz_state, :version
 
   def initialize(app = nil)
     @prometheus = Prometheus::Client.registry
     @fibonnaci_hit_count = Prometheus::Client::Counter.new(:playground_request, 'A counter of HTTP requests made')
-    @healthz_ok_count = Prometheus::Client::Gauge.new(:healthz_not_ok_count, 'A gauge metric for bad health checks')
+    @healthz_state = Prometheus::Client::Gauge.new(:healthz_state, 'A gauge metric for health checks')
 
     @prometheus.register(@fibonnaci_hit_count)
-    @prometheus.register(@healthz_ok_count)
+    @prometheus.register(@healthz_state)
 
     if File.exist?('.semver')
       semver_file = File.read('.semver').split
@@ -62,11 +62,16 @@ class App < Sinatra::Base
   get '/healthz' do
     if ENV['FIBONACCI_COUNT'].nil? && !File.exist?('.semver')
       status 500
-      @healthz_ok_count.set({ healthcheck: 'nok' }, 0)
+      @healthz_state.set({ healthcheck: 'FAIL' }, 0)
       'Hello.  Playground cannot run.  Check FIBONACCI_COUNT env var and semver file'
     else
       status 200
-      @healthz_ok_count.set({ healthcheck: 'ok' }, 1)
+      if @healthz_state.get({ healthcheck: 'PASS' }) == 300
+        @healthz_state.set({ healthcheck: 'PASS' }, 100)
+      else
+        @healthz_state.set({ healthcheck: 'PASS' }, 300)
+      end
+
       'Hello.  Playground is up and running.'
     end
   end
